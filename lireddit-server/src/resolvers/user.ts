@@ -46,7 +46,7 @@ export class UserResolver {
             }
         }
 
-        if (options.password.length <=3) {
+        if (options.password.length <=2) {
             return {
                 errors: [{
                     field: 'password',
@@ -99,7 +99,7 @@ export class UserResolver {
             }
         }
 
-        // req.session.userId = user.id
+        req.session.userId = user.id
 
         return { user }
     }
