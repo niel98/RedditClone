@@ -1,0 +1,5 @@
+me -> localhost:3000
+- request to our next.js server
+-> request to graphql server localhost:4000
+-> building the HTML
+-> sending it back to the browser

@@ -1,7 +1,6 @@
 import 'reflect-metadata'
 import { MikroORM } from '@mikro-orm/core'
 import { __prod__ } from './constants'
-// import { Post } from './entities/Post'
 import mikroConfig from './mikro-orm.config'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
@@ -9,20 +8,21 @@ import { buildSchema } from 'type-graphql'
 import { HelloResolver } from './resolvers/hello'
 import { PostResolver } from './resolvers/post'
 import { UserResolver } from './resolvers/user'
-import redis from 'redis'
+import Redis from 'ioredis'
 import session from 'express-session'
 import connectRedis from 'connect-redis'
 import { MyContext } from './types'
 import cors from 'cors'
 
 const main = async () => {
+
     const orm = await MikroORM.init(mikroConfig)
     await orm.getMigrator().up()
 
     const app = express()
 
     const RedisStore = connectRedis(session)
-    const redisClient = redis.createClient()
+    const redis = new Redis()
 
     app.use(cors({
         origin: 'http://localhost:3000',
@@ -33,11 +33,11 @@ const main = async () => {
         session({
             name: 'qid',
             store: new RedisStore({ 
-                client: redisClient,
+                client: redis,
                 disableTouch: true    
             }),
             cookie: {
-                maxAge: 1000 * 60 * 60 * 24 * 365 * 10,             // 10 years
+                maxAge: 1000 * 60 * 60,             // 1 hour
                 sameSite: 'lax',
                 secure: __prod__ // cookie only works in https 
             },
@@ -52,7 +52,7 @@ const main = async () => {
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false,
         }),
-        context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
+        context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis })
     })
 
     await apolloServer.start()
@@ -61,6 +61,11 @@ const main = async () => {
     app.get('/', (_, res) => {
         res.send('Hello from server')
     })
+
+    // app.post('/sendEmail', (req, res) => {
+    //     sendEmail(req.body.to, req.body.text)
+    //     res.send('Email sent')
+    // })
 
     app.listen(4000, () => {
         console.log('App running on the specified Port')
