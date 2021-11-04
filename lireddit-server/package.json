@@ -8,7 +8,6 @@
     "dev": "nodemon dist/index.js",
     "startNode": "node dist/index.js",
     "startTs": "ts-node src/index.ts",
-    "create:migration": "mikro-orm migration:create",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -48,6 +47,7 @@
     "reflect-metadata": "^0.1.13",
     "sendmail": "^1.6.1",
     "type-graphql": "^1.1.1",
+    "typeorm": "^0.2.38",
     "uuid": "^8.3.2"
   },
   "mikro-orm": {
